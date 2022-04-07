@@ -1,6 +1,35 @@
 import logo from "./images/logo.png";
 import { Link } from "react-router-dom";
-const Header = () => {
+import React, { useState } from "react";
+import Information from "./Information";
+import firebase from 'firebase'
+class Header extends React.Component {
+  constructor(props){
+    super(props)
+    this.state={
+      search:'',
+      data:[]
+    }
+  }
+  render(){
+  const searchUser=(e)=>{
+    e.preventDefault();
+    console.log(this.state.search)
+    firebase
+        .firestore().collectionGroup("Freedomfighter")
+        .orderBy("name")
+        .where("name",">=",this.state.search)
+        .get()
+        .then((snapshot) => {
+          let users = snapshot.docs.map((doc) => {
+            const data = doc.data();
+            const id = doc.id;
+            return { id, ...data }
+          });
+          this.setState({ data: users});
+          console.log(users);
+    })
+  }
   return (
     <div>
       <nav className="navbar navbar-expand-sm navbar-dark bg-dark mx-0 my-0 ">
@@ -44,15 +73,28 @@ const Header = () => {
                 type="search"
                 placeholder="Search"
                 aria-label="Search"
+                value={this.state.search}
+                onChange={(event) =>this.setState({search:event.target.value})}
               />
-              <button className="btn btn-outline-success" type="submit">
+              <button className="btn btn-outline-success" type="submit" 
+              onClick={searchUser}>
                 Search
               </button>
             </form>
           </div>
         </div>
       </nav>
+      
+    {this.state.search==="" ?"":
+    <div className="container pt-5">
+    {this.state.data.map((data) => (
+        <Information  state={data} key={data.id} />
+    ))}
+    </div>
+    
+    }
     </div>
   );
-};
+}
+}
 export default Header;

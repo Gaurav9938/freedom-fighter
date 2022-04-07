@@ -1,5 +1,4 @@
 import React from "react";
-import hello from "./images/gauravp.png";
 
 function Information(props) {
   console.log(props)
